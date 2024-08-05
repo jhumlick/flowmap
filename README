@@ -1,0 +1,53 @@
+Usage:
+    Assuming a lookup table of 'lookuptable', a flow log file of 'flowlog' and
+    an output file of 'output', this program would be called as follows:
+        python3 ./flowmap.py lookuptable flowlog output
+
+
+Assumptions made:
+    1) Since tag names are case insensitive and the same tag name may appear in
+        the lookup table with different case variation, all tag names will be
+        reported in upper case.
+    2) All protocol fields reported will be in lower case, as to more closely
+        match the sample output.
+    3) Each field in the lookup table may contain a whitespace. Everything after
+        the whitespace in a field will be discarded.
+    4) Each port and protocol combination may only have a single tag. Additional
+        tags will overwrite the prior port and protocol combination.
+    5) The lookup table and flow log files shall be properly formatted. This
+        program will not do input validation outside of checking the number of
+        columns.
+    6) Both the lookup table and flow log files may contain a hash as the first
+        character in a line to indicate that this line is a comment.
+    7) This program shall be used with a custom flow log file containing the
+        following fields separated by whitespace:
+            version protocol IP_address src_port dst_port flow_direction status
+    8) This program only considers the dst_port in its reporting.
+    9) This program will count both egress and ingress lines in its reporting.
+    10) This program will overwrite an existing file, if specified, to generate
+        output.
+    11) Titles and headings from the sample output will match what was sent in
+        the email description as closely as possible.
+    12) Ports in the flow log and lookup table shall be numeric values only.
+
+
+Notes:
+    1) I am not sure why port 23 and 443 in the sample output are followed by
+        full stops. My sample files contain only numeric values for ports.
+    2) Since the sample lookup table contains a stray x for '23,tcp,sv_P1 x',
+        this program will discard a whitespace in a field and anything that
+        follows in the lookup table file. This distinction will not be made in
+        the flow log file.
+    3) This program only works with Python3.
+    4) To generate a flow log close to 10MB in size and a lookup table with
+        1000 entries with a tag range of sv_P{0-499}:
+            python3 genflowlog.py 240000 flowlog_big
+            python3 genlookuptable.py 1000 500 lookuptable_big
+    5) Using the files above, I was able to process the flow log map in the
+        following time:
+            >time python3 flowmap.py lookuptable_big flowlog_big output_big
+            python3 flowmap.py lookuptable_big flowlog_big output_big  0.24s user 0.02s system 99% cpu 0.258 total
+    6) Output will be left aligned and padded for 10 characters per field.
+    7) Failures with file and parsing operations are not recoverable and will
+        generate exceptions.
+    8) This is my first Python project from scratch.
